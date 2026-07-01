@@ -8,7 +8,7 @@ export default function CameraScreen() {
   async function takePicture() {
     if (!cameraRef.current) return;
     const result = await cameraRef.current.takePictureAsync({ quality: 0.7 });
-    setPhoto(result.uri);
+    navigation.navigate("Preview", { uri: result.uri });
   }
   return (
     <View style={styles.container}>
@@ -19,7 +19,6 @@ export default function CameraScreen() {
     </View>
   );
   if (!permission) {
-    // Permission status is still loading
     return <View style={styles.container} />;
   }
   if (!permission.granted) {
