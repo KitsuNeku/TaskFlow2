@@ -1,19 +1,12 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
-import {
-  Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  useWindowDimensions,
-  View,
-} from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { imageToBase64 } from "../../lib/gemini.js";
 
-export default function PreviewScreen({ route }) {
+export default function PreviewScreen() {
   const { uri: photoUri } = useLocalSearchParams();
   const router = useRouter();
-  const { width } = useWindowDimensions();
-  const isTablet = width >= 768;
+
   async function handleAnalyze() {
     const base64Image = await imageToBase64(photoUri);
     router.push({
@@ -31,8 +24,12 @@ export default function PreviewScreen({ route }) {
   }
 
   return (
-    <View style={styles.container}>
-      <Image source={{ uri: photoUri }} style={styles.preview} />
+    <SafeAreaView style={styles.container} edges={["bottom"]}>
+      <Image
+        source={{ uri: photoUri }}
+        style={styles.preview}
+        resizeMode="contain"
+      />
       <View style={styles.actionRow}>
         <TouchableOpacity
           style={styles.retakeButton}
@@ -55,13 +52,13 @@ export default function PreviewScreen({ route }) {
           <Text style={styles.personaLabel}>Inventory Analysis</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#000" },
-  preview: { flex: 1, resizeMode: "contain" },
+  preview: { flex: 1 },
   actionRow: {
     flexDirection: "row",
     justifyContent: "space-around",
@@ -74,6 +71,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
     padding: 12,
+    paddingBottom: 16,
   },
   personaLabel: { color: "#fff", fontSize: 12 },
 });
