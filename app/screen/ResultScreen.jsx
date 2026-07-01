@@ -3,14 +3,26 @@ import { useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { analyzeImage } from "../../lib/gemini.js";
 
+const JSON_INSTRUCTION = `
+Respond ONLY with valid JSON in this exact shape, no extra text, no markdown formatting, no code fences:
+{
+  "objects": ["...", "..."],
+  "context": "...",
+  "activities": "...",
+  "recommendations": "..."
+}
+`;
+
 const PROMPTS = {
-  academic: `Act as a university professor. Looking at this image, provide an academic-style
-analysis: identify the objects present, the educational context, and one piece of constructive
-feedback.`,
-  safety: `Act as a workplace safety inspector. Looking at this image, identify any visible hazards,
-risks, or safety concerns. If none are visible, state that clearly.`,
-  inventory: `Act as an asset management clerk. Looking at this image, list every visible physical
-asset as a clean inventory list, with no extra commentary.`,
+  academic:
+    `Act as a university professor. Looking at this image, provide an academic-style analysis: identify the objects present, the educational context, and one piece of constructive feedback.` +
+    JSON_INSTRUCTION,
+  safety:
+    `Act as a workplace safety inspector. Looking at this image, identify any visible hazards, risks, or safety concerns. If none are visible, state that clearly.` +
+    JSON_INSTRUCTION,
+  inventory:
+    `Act as an asset management clerk. Looking at this image, list every visible physical asset as a clean inventory list, with no extra commentary.` +
+    JSON_INSTRUCTION,
 };
 
 export default function ResultScreen() {
@@ -31,7 +43,10 @@ export default function ResultScreen() {
       const result = await analyzeImage(base64Image, prompt);
       const textPart = result?.candidates?.[0]?.content?.parts?.[0]?.text;
       if (!textPart) throw new Error("Empty response from Gemini");
-      setAnalysis(JSON.parse(textPart));
+
+      // Strip markdown code fences if Gemini wraps the JSON in ```json ... ```
+      const cleaned = textPart.replace(/```json\s*|```/g, "").trim();
+      setAnalysis(JSON.parse(cleaned));
     } catch (err) {
       console.log("ANALYSIS ERROR:", err);
       setError("Could not analyze this image. Please try again.");
