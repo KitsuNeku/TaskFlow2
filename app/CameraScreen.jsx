@@ -2,6 +2,7 @@ import { CameraView, useCameraPermissions } from "expo-camera";
 import { useRouter } from "expo-router";
 import { useRef } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import PermissionScreen from "./screen/PermissionScreen";
 
 export default function CameraScreen() {
   const [permission, requestPermission] = useCameraPermissions();
@@ -10,7 +11,7 @@ export default function CameraScreen() {
 
   async function takePicture() {
     if (!cameraRef.current) return;
-    const result = await cameraRef.current.takePictureAsync({ quality: 0.1 });
+    const result = await cameraRef.current.takePictureAsync({ quality: 0.7 });
     router.push({
       pathname: "/screen/PreviewScreen",
       params: { uri: result.uri },
@@ -23,17 +24,10 @@ export default function CameraScreen() {
 
   if (!permission.granted) {
     return (
-      <View style={styles.permissionContainer}>
-        <Text style={styles.permissionText}>
-          We need your permission to use the camera
-        </Text>
-        <TouchableOpacity
-          style={styles.permissionButton}
-          onPress={requestPermission}
-        >
-          <Text style={styles.permissionButtonText}>Grant Permission</Text>
-        </TouchableOpacity>
-      </View>
+      <PermissionScreen
+        permission={permission}
+        requestPermission={requestPermission}
+      />
     );
   }
 
@@ -60,17 +54,4 @@ const styles = StyleSheet.create({
     borderRadius: 30,
   },
   captureButtonText: { color: "#fff", fontWeight: "bold", fontSize: 16 },
-  permissionContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  permissionText: { textAlign: "center", marginBottom: 16, fontSize: 16 },
-  permissionButton: {
-    backgroundColor: "#2E5BBA",
-    padding: 12,
-    borderRadius: 8,
-  },
-  permissionButtonText: { color: "#fff", fontWeight: "bold" },
 });

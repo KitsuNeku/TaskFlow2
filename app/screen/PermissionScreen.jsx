@@ -1,4 +1,6 @@
+import { useCallback } from "react";
 import {
+    Linking,
     Platform,
     StyleSheet,
     Text,
@@ -10,25 +12,41 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 export default function PermissionScreen({ permission, requestPermission }) {
   const insets = useSafeAreaInsets();
 
+  const openSettings = useCallback(() => {
+    Linking.openSettings();
+  }, []);
+
   if (!permission?.granted) {
+    const canAskAgain = permission?.canAskAgain ?? true;
+
     return (
-      <View style={styles.permissionContainer}>
+      <View
+        style={[
+          styles.permissionContainer,
+          { paddingTop: insets.top, paddingBottom: insets.bottom },
+        ]}
+      >
         <Text style={styles.permissionText}>
-          {Platform.OS === "ios"
-            ? 'TaskFlow needs camera access. Tap below, then choose "Allow" in the dialog.'
-            : "TaskFlow needs camera access. Tap below to grant the permission."}
+          {canAskAgain
+            ? Platform.OS === "ios"
+              ? 'TaskFlow needs camera access. Tap below, then choose "Allow" in the dialog.'
+              : "TaskFlow needs camera access. Tap below to grant the permission."
+            : Platform.OS === "ios"
+              ? "Camera access was denied. Please enable it in Settings to continue."
+              : "Camera access was permanently denied. Please enable it in Settings to continue."}
         </Text>
         <TouchableOpacity
           style={styles.permissionButton}
-          onPress={requestPermission}
+          onPress={canAskAgain ? requestPermission : openSettings}
         >
-          <Text style={styles.permissionButtonText}>Grant Permission</Text>
+          <Text style={styles.permissionButtonText}>
+            {canAskAgain ? "Grant Permission" : "Open Settings"}
+          </Text>
         </TouchableOpacity>
       </View>
     );
   }
 
-  console.log(Platform.OS); // 'ios' or 'android'
   return null;
 }
 
