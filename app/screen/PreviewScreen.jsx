@@ -1,14 +1,33 @@
-import { useLocalSearchParams } from "expo-router";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import {
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from "react-native";
 import { imageToBase64 } from "../../lib/gemini.js";
 
-const { uri } = useLocalSearchParams();
-export default function PreviewScreen({ route, navigation }) {
-  const { photoUri } = route.params;
-
+export default function PreviewScreen({ route }) {
+  const { uri: photoUri } = useLocalSearchParams();
+  const router = useRouter();
+  const { width } = useWindowDimensions();
+  const isTablet = width >= 768;
   async function handleAnalyze() {
     const base64Image = await imageToBase64(photoUri);
-    navigation.navigate("Result", { base64Image });
+    router.push({
+      pathname: "/screen/ResultScreen",
+      params: { base64Image },
+    });
+  }
+
+  async function handleAnalyzePersona(personaKey) {
+    const base64Image = await imageToBase64(photoUri);
+    router.push({
+      pathname: "/screen/ResultScreen",
+      params: { base64Image, promptKey: personaKey },
+    });
   }
 
   return (
@@ -17,7 +36,7 @@ export default function PreviewScreen({ route, navigation }) {
       <View style={styles.actionRow}>
         <TouchableOpacity
           style={styles.retakeButton}
-          onPress={() => navigation.goBack()}
+          onPress={() => router.back()}
         >
           <Text style={styles.buttonText}>Retake</Text>
         </TouchableOpacity>
@@ -38,12 +57,8 @@ export default function PreviewScreen({ route, navigation }) {
       </View>
     </View>
   );
-
-  async function handleAnalyzePersona(personaKey) {
-    const base64Image = await imageToBase64(photoUri);
-    navigation.navigate("Result", { base64Image, promptKey: personaKey });
-  }
 }
+
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#000" },
   preview: { flex: 1, resizeMode: "contain" },
@@ -55,4 +70,10 @@ const styles = StyleSheet.create({
   retakeButton: { backgroundColor: "#5A6472", padding: 14, borderRadius: 8 },
   analyzeButton: { backgroundColor: "#5B3FA3", padding: 14, borderRadius: 8 },
   buttonText: { color: "#fff", fontWeight: "bold" },
+  personaRow: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    padding: 12,
+  },
+  personaLabel: { color: "#fff", fontSize: 12 },
 });

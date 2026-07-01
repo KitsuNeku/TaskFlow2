@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { analyzeImage } from "../../lib/gemini.js";
 
-const { uri } = useLocalSearchParams();
 const PROMPTS = {
   academic: `Act as a university professor. Looking at this image, provide an academic-style
 analysis: identify the objects present, the educational context, and one piece of constructive
@@ -13,22 +12,23 @@ risks, or safety concerns. If none are visible, state that clearly.`,
   inventory: `Act as an asset management clerk. Looking at this image, list every visible physical
 asset as a clean inventory list, with no extra commentary.`,
 };
-const { base64Image, promptKey } = route.params;
-const prompt = PROMPTS[promptKey];
-const result = await analyzeImage(base64Image, prompt);
-export default function ResultScreen({ route }) {
-  const { base64Image } = route.params;
+
+export default function ResultScreen() {
+  const { base64Image, promptKey } = useLocalSearchParams();
   const [analysis, setAnalysis] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     runAnalysis();
   }, []);
+
   async function runAnalysis() {
     setLoading(true);
     setError(null);
     try {
-      const result = await analyzeImage(base64Image, ANALYSIS_PROMPT);
+      const prompt = PROMPTS[promptKey] || PROMPTS.academic;
+      const result = await analyzeImage(base64Image, prompt);
       const textPart = result?.candidates?.[0]?.content?.parts?.[0]?.text;
       if (!textPart) throw new Error("Empty response from Gemini");
       setAnalysis(JSON.parse(textPart));
@@ -38,6 +38,7 @@ export default function ResultScreen({ route }) {
       setLoading(false);
     }
   }
+
   if (loading) {
     return (
       <View style={styles.centered}>
@@ -46,6 +47,7 @@ export default function ResultScreen({ route }) {
       </View>
     );
   }
+
   if (error) {
     return (
       <View style={styles.centered}>
@@ -53,6 +55,7 @@ export default function ResultScreen({ route }) {
       </View>
     );
   }
+
   return (
     <View style={styles.container}>
       <Text style={styles.sectionTitle}>Objects</Text>
@@ -70,6 +73,7 @@ export default function ResultScreen({ route }) {
     </View>
   );
 }
+
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, paddingTop: 60 },
   centered: { flex: 1, justifyContent: "center", alignItems: "center" },
