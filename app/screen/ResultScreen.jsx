@@ -32,26 +32,38 @@ export default function ResultScreen() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    runAnalysis();
+    let isActive = true;
+    runAnalysis(isActive);
+    return () => {
+      isActive = false;
+    };
   }, []);
 
-  async function runAnalysis() {
+  async function runAnalysis(isActive) {
     setLoading(true);
     setError(null);
     try {
       const prompt = PROMPTS[promptKey] || PROMPTS.academic;
       const result = await analyzeImage(base64Image, prompt);
+      console.log("GEMINI RAW RESPONSE:", JSON.stringify(result, null, 2));
       const textPart = result?.candidates?.[0]?.content?.parts?.[0]?.text;
       if (!textPart) throw new Error("Empty response from Gemini");
 
-      // Strip markdown code fences if Gemini wraps the JSON in ```json ... ```
       const cleaned = textPart.replace(/```json\s*|```/g, "").trim();
-      setAnalysis(JSON.parse(cleaned));
+      const parsed = JSON.parse(cleaned);
+
+      if (isActive) {
+        setAnalysis(parsed);
+      }
     } catch (err) {
       console.log("ANALYSIS ERROR:", err);
-      setError("Could not analyze this image. Please try again.");
+      if (isActive) {
+        setError("Could not analyze this image. Please try again.");
+      }
     } finally {
-      setLoading(false);
+      if (isActive) {
+        setLoading(false);
+      }
     }
   }
 
@@ -71,7 +83,13 @@ export default function ResultScreen() {
       </View>
     );
   }
-
+  if (!analysis) {
+    return (
+      <View style={styles.centered}>
+        <Text style={styles.errorText}>No analysis available.</Text>
+      </View>
+    );
+  }
   return (
     <View style={styles.container}>
       <Text style={styles.sectionTitle}>Objects</Text>
