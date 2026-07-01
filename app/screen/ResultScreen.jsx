@@ -33,6 +33,7 @@ export default function ResultScreen() {
       if (!textPart) throw new Error("Empty response from Gemini");
       setAnalysis(JSON.parse(textPart));
     } catch (err) {
+      console.log("ANALYSIS ERROR:", err);
       setError("Could not analyze this image. Please try again.");
     } finally {
       setLoading(false);
