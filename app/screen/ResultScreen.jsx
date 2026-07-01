@@ -1,19 +1,21 @@
+import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { analyzeImage } from "../../lib/gemini.js";
-const ANALYSIS_PROMPT = `
-Analyze this image. Identify:
-1. Objects - list the distinct physical objects you see
-2. Context - briefly describe the setting or scene
-3. Activities - what activity appears to be happening, if any
-4. Recommendations - one practical suggestion based on the scene
-Respond ONLY with valid JSON in this exact shape, no extra text:{
-  "objects": ["...", "..."],
-  "context": "...",
-  "activities": "...",
-  "recommendations": "..."
-}
-`;
+
+const { uri } = useLocalSearchParams();
+const PROMPTS = {
+  academic: `Act as a university professor. Looking at this image, provide an academic-style
+analysis: identify the objects present, the educational context, and one piece of constructive
+feedback.`,
+  safety: `Act as a workplace safety inspector. Looking at this image, identify any visible hazards,
+risks, or safety concerns. If none are visible, state that clearly.`,
+  inventory: `Act as an asset management clerk. Looking at this image, list every visible physical
+asset as a clean inventory list, with no extra commentary.`,
+};
+const { base64Image, promptKey } = route.params;
+const prompt = PROMPTS[promptKey];
+const result = await analyzeImage(base64Image, prompt);
 export default function ResultScreen({ route }) {
   const { base64Image } = route.params;
   const [analysis, setAnalysis] = useState(null);

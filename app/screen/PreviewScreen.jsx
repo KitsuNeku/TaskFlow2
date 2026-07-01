@@ -1,6 +1,8 @@
+import { useLocalSearchParams } from "expo-router";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { imageToBase64 } from "../../lib/gemini.js";
 
+const { uri } = useLocalSearchParams();
 export default function PreviewScreen({ route, navigation }) {
   const { photoUri } = route.params;
 
@@ -23,8 +25,24 @@ export default function PreviewScreen({ route, navigation }) {
           <Text style={styles.buttonText}>Analyze</Text>
         </TouchableOpacity>
       </View>
+      <View style={styles.personaRow}>
+        <TouchableOpacity onPress={() => handleAnalyzePersona("academic")}>
+          <Text style={styles.personaLabel}>Academic Analysis</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => handleAnalyzePersona("safety")}>
+          <Text style={styles.personaLabel}>Safety Analysis</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => handleAnalyzePersona("inventory")}>
+          <Text style={styles.personaLabel}>Inventory Analysis</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
+
+  async function handleAnalyzePersona(personaKey) {
+    const base64Image = await imageToBase64(photoUri);
+    navigation.navigate("Result", { base64Image, promptKey: personaKey });
+  }
 }
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#000" },
