@@ -1,26 +1,26 @@
-import { useCameraPermissions } from "expo-camera";
-import { useRef, useState } from "react";
+import { CameraView, useCameraPermissions } from "expo-camera";
+import { useRouter } from "expo-router";
+import { useRef } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+
 export default function CameraScreen() {
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef(null);
-  const [photo, setPhoto] = useState(null);
+  const router = useRouter();
+
   async function takePicture() {
     if (!cameraRef.current) return;
     const result = await cameraRef.current.takePictureAsync({ quality: 0.7 });
-    navigation.navigate("Preview", { uri: result.uri });
+    router.push({
+      pathname: "/screen/PreviewScreen",
+      params: { uri: result.uri },
+    });
   }
-  return (
-    <View style={styles.container}>
-      <CameraView ref={cameraRef} style={styles.camera} facing="back" />;
-      <TouchableOpacity style={styles.captureButton} onPress={takePicture}>
-        ;<Text style={styles.captureButtonText}>Capture</Text>;
-      </TouchableOpacity>
-    </View>
-  );
+
   if (!permission) {
     return <View style={styles.container} />;
   }
+
   if (!permission.granted) {
     return (
       <View style={styles.permissionContainer}>
@@ -36,7 +36,15 @@ export default function CameraScreen() {
       </View>
     );
   }
-  return <View style={styles.container} />;
+
+  return (
+    <View style={styles.container}>
+      <CameraView ref={cameraRef} style={styles.camera} facing="back" />
+      <TouchableOpacity style={styles.captureButton} onPress={takePicture}>
+        <Text style={styles.captureButtonText}>Capture</Text>
+      </TouchableOpacity>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({

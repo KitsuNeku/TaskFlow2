@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
-import { analyzeImage } from "../lib/gemini";
+import { analyzeImage } from "../../lib/gemini.js";
 const ANALYSIS_PROMPT = `
 Analyze this image. Identify:
 1. Objects - list the distinct physical objects you see

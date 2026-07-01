@@ -1,5 +1,5 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { imageToBase64 } from "../lib/gemini";
+import { imageToBase64 } from "../../lib/gemini.js";
 
 export default function PreviewScreen({ route, navigation }) {
   const { photoUri } = route.params;
