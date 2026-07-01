@@ -39,3 +39,31 @@ export default function CameraScreen() {
   }
   return <View style={styles.container} />;
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  camera: { flex: 1 },
+  captureButton: {
+    position: "absolute",
+    bottom: 40,
+    alignSelf: "center",
+    backgroundColor: "#2E5BBA",
+    paddingVertical: 14,
+    paddingHorizontal: 36,
+    borderRadius: 30,
+  },
+  captureButtonText: { color: "#fff", fontWeight: "bold", fontSize: 16 },
+  permissionContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  permissionText: { textAlign: "center", marginBottom: 16, fontSize: 16 },
+  permissionButton: {
+    backgroundColor: "#2E5BBA",
+    padding: 12,
+    borderRadius: 8,
+  },
+  permissionButtonText: { color: "#fff", fontWeight: "bold" },
+});
